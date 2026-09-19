@@ -21,8 +21,8 @@ from homeassistant.helpers.device_registry import DeviceEntryType, DeviceInfo
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from . import RimeConfigEntry
-from .api import RimeAuthError, RimeError
-from .const import CONF_FALLBACK_ENGINE, CONF_VOICE, DOMAIN
+from .api import RimeAuthError, RimeError, validate_speed
+from .const import CONF_FALLBACK_ENGINE, CONF_SPEED, CONF_VOICE, DEFAULT_SPEED, DOMAIN
 from .fallback import RecordedText
 
 _LOGGER = logging.getLogger(__name__)
@@ -48,7 +48,7 @@ class RimeTTSEntity(TextToSpeechEntity):
 
     _attr_has_entity_name = True
     _attr_name = "Text-to-speech"
-    _attr_supported_options = [CONF_VOICE]
+    _attr_supported_options = [CONF_VOICE, CONF_SPEED]
 
     def __init__(self, entry: RimeConfigEntry) -> None:
         self._entry = entry
@@ -56,6 +56,8 @@ class RimeTTSEntity(TextToSpeechEntity):
         self._model = entry.options[CONF_MODEL]
         self._voices = entry.runtime_data.voices[self._model]
         self._voice = entry.options[CONF_VOICE]
+        self._speed = entry.options.get(CONF_SPEED, DEFAULT_SPEED)
+        self._attr_default_options = {CONF_SPEED: self._speed}
         self._attr_unique_id = entry.entry_id
         self._attr_default_language = entry.options[CONF_LANGUAGE]
         self._attr_supported_languages = list(self._voices)
@@ -90,8 +92,12 @@ class RimeTTSEntity(TextToSpeechEntity):
     ) -> AsyncGenerator[bytes]:
         voice = self._select_voice(language, options)
         try:
+            speed = validate_speed(options.get(CONF_SPEED, self._speed))
+        except ValueError as err:
+            raise HomeAssistantError(str(err)) from err
+        try:
             async with aclosing(
-                self._client.stream(text, self._model, language, voice)
+                self._client.stream(text, self._model, language, voice, speed)
             ) as audio:
                 async for chunk in audio:
                     yield chunk

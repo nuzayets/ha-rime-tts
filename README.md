@@ -38,6 +38,14 @@ US West matches Rime's default routing. Choose the region closest to your Home A
 
 Each configuration has one model. Add another entry if you want separate Coda and Mist entities. The entity exposes all languages supported by that model. Select a matching voice in Assist or override it in a call; when no voice is supplied for another language, the first matching catalog voice is used.
 
+## Speaking speed
+
+Set **Speaking speed** during setup or under **Configure**. The slider ranges from **0.4× to 2.5×**: **1.0×** is normal, higher values speak faster, and lower values speak slower. Try **1.1×** for a modest increase. Existing entries remain at 1.0× until changed.
+
+This adjusts the voice's speaking rate, not the delay before speech begins. It works with Coda and Mist v3, including streaming Assist responses. No prompt changes are needed. Fallback engines retain their own settings.
+
+For an individual announcement, override the configured rate with `options.speed`. The integration converts the playback multiplier to Rime's reciprocal `timeScaleFactor` and includes the rate in Home Assistant's TTS cache options.
+
 ## Announcements
 
 Replace the entity IDs with those from your installation:
@@ -52,6 +60,7 @@ data:
   language: en
   options:
     voice: astra
+    speed: 1.1
 ```
 
 ## Streaming and voice prompts

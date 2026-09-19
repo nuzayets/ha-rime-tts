@@ -10,6 +10,9 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.selector import (
     EntitySelector,
     EntitySelectorConfig,
+    NumberSelector,
+    NumberSelectorConfig,
+    NumberSelectorMode,
     SelectSelector,
     SelectSelectorConfig,
     TextSelector,
@@ -22,10 +25,14 @@ from .api import RimeAuthError, RimeClient, RimeError, VoiceCatalog
 from .const import (
     CONF_FALLBACK_ENGINE,
     CONF_REGION,
+    CONF_SPEED,
     CONF_VOICE,
     DEFAULT_MODEL,
     DEFAULT_REGION,
+    DEFAULT_SPEED,
     DOMAIN,
+    MAX_SPEED,
+    MIN_SPEED,
     WS_URLS,
 )
 
@@ -46,6 +53,17 @@ def selection_schema(
         ): SelectSelector(
             SelectSelectorConfig(
                 options=sorted({lang for langs in catalog.values() for lang in langs})
+            )
+        ),
+        vol.Required(
+            CONF_SPEED, default=defaults.get(CONF_SPEED, DEFAULT_SPEED)
+        ): NumberSelector(
+            NumberSelectorConfig(
+                min=MIN_SPEED,
+                max=MAX_SPEED,
+                step=0.05,
+                mode=NumberSelectorMode.SLIDER,
+                unit_of_measurement="×",
             )
         ),
         vol.Optional(
@@ -102,6 +120,7 @@ class RimeConfigFlow(ConfigFlow, domain=DOMAIN):
                     CONF_MODEL: model,
                     CONF_LANGUAGE: language,
                     CONF_REGION: user_input[CONF_REGION],
+                    CONF_SPEED: user_input.get(CONF_SPEED, DEFAULT_SPEED),
                 }
                 if user_input.get(CONF_FALLBACK_ENGINE):
                     self.settings[CONF_FALLBACK_ENGINE] = user_input[

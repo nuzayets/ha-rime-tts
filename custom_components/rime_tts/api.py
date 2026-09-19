@@ -10,7 +10,17 @@ from datetime import date
 
 import aiohttp
 
-from .const import DEFAULT_REGION, HTTP_URLS, LANGUAGES, MODELS, USAGE_URL, WS_URLS
+from .const import (
+    DEFAULT_REGION,
+    DEFAULT_SPEED,
+    HTTP_URLS,
+    LANGUAGES,
+    MAX_SPEED,
+    MIN_SPEED,
+    MODELS,
+    USAGE_URL,
+    WS_URLS,
+)
 
 type VoiceCatalog = dict[str, dict[str, list[str]]]
 
@@ -21,6 +31,17 @@ class RimeError(Exception):
 
 class RimeAuthError(RimeError):
     """Rime rejected the API key."""
+
+
+def validate_speed(value: object) -> float:
+    """Accept finite playback multipliers supported by Rime."""
+    if (
+        isinstance(value, bool)
+        or not isinstance(value, (int, float))
+        or not MIN_SPEED <= value <= MAX_SPEED
+    ):
+        raise ValueError(f"Speaking speed must be between {MIN_SPEED} and {MAX_SPEED}")
+    return value
 
 
 def parse_catalog(data: object) -> VoiceCatalog:
@@ -110,7 +131,9 @@ class RimeClient:
             totals[day] = total
         return totals
 
-    def _connect(self, model: str, language: str, voice: str):
+    def _connect(
+        self, model: str, language: str, voice: str, speed: float = DEFAULT_SPEED
+    ):
         return self.session.ws_connect(
             WS_URLS[self.region],
             headers=self._headers,
@@ -121,6 +144,7 @@ class RimeClient:
                 "audioFormat": "mp3",
                 "samplingRate": "24000",
                 "segment": "bySentence",
+                "timeScaleFactor": str(1.0 / validate_speed(speed)),
             },
             timeout=aiohttp.ClientWSTimeout(ws_receive=60, ws_close=5),
         )
@@ -138,11 +162,16 @@ class RimeClient:
             raise RimeError("Unable to connect to Rime") from err
 
     async def stream(
-        self, text: AsyncIterable[str], model: str, language: str, voice: str
+        self,
+        text: AsyncIterable[str],
+        model: str,
+        language: str,
+        voice: str,
+        speed: float = DEFAULT_SPEED,
     ) -> AsyncGenerator[bytes]:
         """Send incremental text while receiving MP3 audio concurrently."""
         try:
-            async with self._connect(model, language, voice) as ws:
+            async with self._connect(model, language, voice, speed) as ws:
                 eos_sent = False
                 has_text = False
                 has_audio = False

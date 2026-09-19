@@ -65,6 +65,7 @@ async def test_config_flow(hass, client):
             "language": "en",
             "region": "us-east",
             "voice": "astra",
+            "speed": 1.0,
         }
         await hass.async_block_till_done()
 
@@ -147,7 +148,7 @@ async def test_tts_adapters(hass, entry, client):
     ]
     calls = []
 
-    async def stream(text, model, language, voice):
+    async def stream(text, model, language, voice, speed):
         calls.append((model, language, voice))
         async for part in text:
             yield part.encode()

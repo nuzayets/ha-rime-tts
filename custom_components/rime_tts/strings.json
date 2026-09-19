@@ -4,8 +4,8 @@
     "step": {
       "user": {
         "title": "Connect to Rime",
-        "description": "Enter your Rime API key and choose a model and language. Coda is the recommended model. Voice lists are fetched from Rime. Authentication does not synthesize speech.",
-        "data": {"api_key": "API key", "model": "Model", "language": "Default language", "region": "API region", "fallback_engine": "Fallback TTS engine (optional)"}
+        "description": "Enter your Rime API key and choose a model and language. Coda is the recommended model. Voice lists are fetched from Rime. Authentication does not synthesize speech. Speaking speed: 1.0 is normal; higher values speak faster.",
+        "data": {"api_key": "API key", "model": "Model", "language": "Default language", "region": "API region", "speed": "Speaking speed", "fallback_engine": "Fallback TTS engine (optional)"}
       },
       "voice": {"title": "Choose a default voice", "data": {"voice": "Voice"}},
       "reauth_confirm": {"title": "Update Rime API key", "data": {"api_key": "API key"}}
@@ -23,7 +23,7 @@
   },
   "options": {
     "step": {
-      "init": {"title": "Rime settings", "description": "The fallback uses its own voice and settings, only if Rime fails before producing audio. Clear the selection to disable fallback.", "data": {"model": "Model", "language": "Default language", "region": "API region", "fallback_engine": "Fallback TTS engine (optional)"}},
+      "init": {"title": "Rime settings", "description": "Speaking speed: 1.0 is normal; higher values speak faster. The fallback uses its own voice and settings, only if Rime fails before producing audio. Clear the selection to disable fallback.", "data": {"model": "Model", "language": "Default language", "region": "API region", "speed": "Speaking speed", "fallback_engine": "Fallback TTS engine (optional)"}},
       "voice": {"title": "Choose a default voice", "data": {"voice": "Voice"}}
     },
     "error": {
