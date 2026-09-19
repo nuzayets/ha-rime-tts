@@ -12,7 +12,7 @@ A HACS custom integration for [Rime](https://rime.ai) text-to-speech, including 
 - Normal `tts.speak` announcements use the same transport.
 - UI configuration, options, and API-key reauthentication. No YAML configuration or extra runtime packages.
 
-Requires **Home Assistant 2026.9.0 or newer** and a [Rime API key](https://docs.rime.ai/docs/api-authentication). Rime synthesis is a paid cloud service. The key is stored in Home Assistant's integration configuration, never in this repository.
+Requires **Home Assistant 2026.9.0 or newer** and a [Rime API key](https://docs.rime.ai/docs/api-authentication). Rime synthesis is a paid cloud service.
 
 ## Install with HACS
 
@@ -32,7 +32,7 @@ Manual installation: copy `custom_components/rime_tts` into your Home Assistant 
 | `us-east` | `wss://users-east-ws.rime.ai/ws3` | `https://users-east.rime.ai` |
 | `us-west` (default) | `wss://users-ws.rime.ai/ws3` | `https://users-west.rime.ai` |
 
-US West matches Rime's default routing. Choose the region closest to your Home Assistant server; US East is usually preferable for Toronto. Change it later with **Configure** on the integration. The initial public voice catalog is loaded from the default region before setup; no credentials or speech are sent in that request. Authentication and synthesis use your selected region.
+US West matches Rime's default routing. Choose the region closest to your Home Assistant server. Change it later with **Configure** on the integration. The initial public voice catalog is loaded from the default region before setup; no credentials or speech are sent in that request. Authentication and synthesis use your selected region.
 
 Each configuration has one model. Add another entry if you want separate Coda and Mist entities. The entity exposes all languages supported by that model. Select a matching voice in Assist or override it in a call; when no voice is supplied for another language, the first matching catalog voice is used.
 
@@ -58,9 +58,9 @@ Rime buffers incoming text to sentence boundaries for natural speech, while audi
 
 Rime's API authenticates the WebSocket before synthesis; setup validates credentials without generating speech. Interrupted playback closes the connection rather than retrying or replaying partially spoken audio. Connection, authentication, and protocol errors are surfaced to Home Assistant.
 
-Use natural, punctuated text. **Do not reuse Microsoft or Cartesia-specific SSML instructions**: this integration passes speech text through and does not translate another provider's markup. Configure any Rime-specific delivery syntax according to [Rime's documentation](https://docs.rime.ai/docs/api-reference).
+Use natural, punctuated text. Speech text is passed through without translating provider-specific markup. For supported delivery controls, see [Rime's documentation](https://docs.rime.ai/docs/api-reference).
 
-Actual streaming requires a streaming conversation agent and a compatible Assist/playback path. A regular `tts.speak` call can still be buffered or cached by Home Assistant. This integration does not add fallback engines, usage sensors, or automatic region switching.
+Actual streaming requires a streaming conversation agent and a compatible Assist/playback path. A regular `tts.speak` call can still be buffered or cached by Home Assistant.
 
 ## Development
 
