@@ -1,0 +1,12 @@
+{
+  "domain": "rime_tts",
+  "name": "Rime TTS",
+  "codeowners": ["@nuzayets"],
+  "config_flow": true,
+  "documentation": "https://github.com/nuzayets/ha-rime-tts",
+  "integration_type": "service",
+  "iot_class": "cloud_push",
+  "issue_tracker": "https://github.com/nuzayets/ha-rime-tts/issues",
+  "requirements": [],
+  "version": "0.1.0"
+}

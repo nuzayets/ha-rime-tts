@@ -1,0 +1,27 @@
+[project]
+name = "ha-rime-tts"
+version = "0.1.0"
+description = "Streaming Rime text-to-speech for Home Assistant"
+requires-python = ">=3.14.2"
+
+[dependency-groups]
+dev = [
+  "pytest-homeassistant-custom-component==0.13.366",
+  "pytest-aiohttp>=1.1,<2",
+  "ruff>=0.15,<1",
+  "mutagen==1.48.1",
+  "ha-ffmpeg==3.2.2",
+]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+pythonpath = ["."]
+testpaths = ["tests"]
+
+[tool.ruff]
+target-version = "py314"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "ASYNC"]
+ignore = ["E501"]

@@ -1,0 +1,35 @@
+{
+  "title": "Rime TTS",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect to Rime",
+        "description": "Enter your Rime API key and choose a model and language. Coda is the recommended model. Voice lists are fetched from Rime. Authentication does not synthesize speech.",
+        "data": {"api_key": "API key", "model": "Model", "language": "Default language", "region": "API region"}
+      },
+      "voice": {"title": "Choose a default voice", "data": {"voice": "Voice"}},
+      "reauth_confirm": {"title": "Update Rime API key", "data": {"api_key": "API key"}}
+    },
+    "error": {
+      "invalid_auth": "Rime rejected the API key.",
+      "cannot_connect": "Could not connect to Rime. Check your network and try again.",
+      "invalid_language": "This model does not support the selected language.",
+      "invalid_voice": "Select a voice from the list."
+    },
+    "abort": {
+      "cannot_connect": "Could not load Rime's voice catalog. Please try again.",
+      "reauth_successful": "Rime authentication updated."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {"title": "Rime settings", "data": {"model": "Model", "language": "Default language", "region": "API region"}},
+      "voice": {"title": "Choose a default voice", "data": {"voice": "Voice"}}
+    },
+    "error": {
+      "invalid_language": "This model does not support the selected language.",
+      "invalid_voice": "Select a voice from the list."
+    },
+    "abort": {"cannot_connect": "Could not load Rime's voice catalog. Please try again."}
+  }
+}
