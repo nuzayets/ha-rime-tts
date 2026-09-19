@@ -35,6 +35,11 @@ def entry():
 def client():
     with (
         patch(
+            "custom_components.rime_tts.api.RimeClient.usage",
+            new_callable=AsyncMock,
+            return_value={},
+        ),
+        patch(
             "custom_components.rime_tts.api.RimeClient.voices",
             new_callable=AsyncMock,
             return_value=CATALOG,

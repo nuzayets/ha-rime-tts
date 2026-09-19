@@ -11,6 +11,8 @@ A HACS custom integration for [Rime](https://rime.ai) text-to-speech, including 
 - Cancellation closes the WebSocket and stops the text producer.
 - Normal `tts.speak` announcements use the same transport.
 - UI configuration, options, and API-key reauthentication. No YAML configuration or extra runtime packages.
+- Optional fallback to another Home Assistant TTS entity before any Rime audio is produced.
+- Account-wide character usage sensors for today and this month.
 
 Requires **Home Assistant 2026.9.0 or newer** and a [Rime API key](https://docs.rime.ai/docs/api-authentication). Rime synthesis is a paid cloud service.
 
@@ -61,6 +63,26 @@ Rime's API authenticates the WebSocket before synthesis; setup validates credent
 Use natural, punctuated text. Speech text is passed through without translating provider-specific markup. For supported delivery controls, see [Rime's documentation](https://docs.rime.ai/docs/api-reference).
 
 Actual streaming requires a streaming conversation agent and a compatible Assist/playback path. A regular `tts.speak` call can still be buffered or cached by Home Assistant.
+
+## Fallback engine
+
+Select an optional **Fallback TTS engine** during setup or under **Configure**. Clear the selection to disable it.
+
+If Rime fails **before producing audio**, the integration collects the complete response text and synthesizes it with the fallback. The fallback uses its own default voice and options, and the requested language when supported (otherwise its default language). Its audio format is preserved; it does not have to output MP3.
+
+Once Rime has produced audio, failures stop playback rather than restarting the response through another engine. Cancellation, invalid voice selections, and failures in the conversation's text stream do not trigger fallback. Authentication failures still request reauthentication even when fallback succeeds. Do not configure circular fallback chains.
+
+Fallback applies to synthesis after the integration has loaded. Initial setup still requires Rime's catalog and authentication services. Keep speech text compatible with both engines; provider-specific markup is not translated.
+
+## Usage sensors
+
+Each integration entry provides **Account characters today** and **Account characters this month**. These are authoritative counts from Rime's account usage API at `https://optimize.rime.ai`, refreshed every 15 minutes.
+
+- Days and calendar months use **UTC**, matching Rime.
+- Counts include all models and applications using the account, across cloud and on-prem usage—not just this Home Assistant entry.
+- Multiple entries for the same account show the same totals; do not add them together.
+- Counts are characters, not estimated costs, remaining credits, or real-time request counters.
+- Sensors become unavailable when usage cannot be retrieved; speech remains independent of that API.
 
 ## Development
 

@@ -6,10 +6,11 @@ import binascii
 import json
 from collections.abc import AsyncGenerator, AsyncIterable
 from contextlib import suppress
+from datetime import date
 
 import aiohttp
 
-from .const import DEFAULT_REGION, HTTP_URLS, LANGUAGES, MODELS, WS_URLS
+from .const import DEFAULT_REGION, HTTP_URLS, LANGUAGES, MODELS, USAGE_URL, WS_URLS
 
 type VoiceCatalog = dict[str, dict[str, list[str]]]
 
@@ -66,6 +67,48 @@ class RimeClient:
                 return parse_catalog(await response.json())
         except (aiohttp.ClientError, TimeoutError, ValueError) as err:
             raise RimeError("Unable to load Rime voices") from err
+
+    async def usage(self, start: date, end: date) -> dict[date, int]:
+        """Read account-wide character counts, as in Rime's official CLI."""
+        try:
+            async with self.session.get(
+                USAGE_URL,
+                params={"startDate": start.isoformat(), "endDate": end.isoformat()},
+                headers=self._headers,
+                timeout=aiohttp.ClientTimeout(total=20),
+            ) as response:
+                response.raise_for_status()
+                payload = await response.json()
+        except (aiohttp.ClientError, TimeoutError, ValueError) as err:
+            raise RimeError("Unable to load Rime account usage") from err
+        if not isinstance(payload, dict) or not isinstance(payload.get("data"), list):
+            raise RimeError("Invalid Rime usage response")
+        totals: dict[date, int] = {}
+        for row in payload["data"]:
+            if (
+                not isinstance(row, dict)
+                or not isinstance(row.get("day"), str)
+                or not isinstance(row.get("breakdown"), list)
+            ):
+                raise RimeError("Invalid Rime usage day")
+            try:
+                day = date.fromisoformat(row["day"])
+            except ValueError as err:
+                raise RimeError("Invalid Rime usage date") from err
+            if not start <= day <= end:
+                continue
+            if day in totals:
+                raise RimeError("Duplicate Rime usage day")
+            total = 0
+            for record in row["breakdown"]:
+                if not isinstance(record, dict):
+                    raise RimeError("Invalid Rime usage record")
+                count = record.get("charCount")
+                if type(count) is not int or count < 0:
+                    raise RimeError("Invalid Rime character count")
+                total += count
+            totals[day] = total
+        return totals
 
     def _connect(self, model: str, language: str, voice: str):
         return self.session.ws_connect(

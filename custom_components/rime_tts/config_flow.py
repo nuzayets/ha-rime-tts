@@ -8,6 +8,8 @@ from homeassistant.const import CONF_API_KEY, CONF_LANGUAGE, CONF_MODEL
 from homeassistant.core import callback
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.selector import (
+    EntitySelector,
+    EntitySelectorConfig,
     SelectSelector,
     SelectSelectorConfig,
     TextSelector,
@@ -18,6 +20,7 @@ from homeassistant.helpers.selector import (
 from . import RimeConfigEntry
 from .api import RimeAuthError, RimeClient, RimeError, VoiceCatalog
 from .const import (
+    CONF_FALLBACK_ENGINE,
     CONF_REGION,
     CONF_VOICE,
     DEFAULT_MODEL,
@@ -45,6 +48,10 @@ def selection_schema(
                 options=sorted({lang for langs in catalog.values() for lang in langs})
             )
         ),
+        vol.Optional(
+            CONF_FALLBACK_ENGINE,
+            description={"suggested_value": defaults.get(CONF_FALLBACK_ENGINE)},
+        ): EntitySelector(EntitySelectorConfig(domain="tts")),
     }
     if api_key:
         fields[vol.Required(CONF_API_KEY)] = TextSelector(
@@ -96,6 +103,10 @@ class RimeConfigFlow(ConfigFlow, domain=DOMAIN):
                     CONF_LANGUAGE: language,
                     CONF_REGION: user_input[CONF_REGION],
                 }
+                if user_input.get(CONF_FALLBACK_ENGINE):
+                    self.settings[CONF_FALLBACK_ENGINE] = user_input[
+                        CONF_FALLBACK_ENGINE
+                    ]
                 voices = self.catalog[model][language]
                 try:
                     await RimeClient(

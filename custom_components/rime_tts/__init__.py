@@ -45,7 +45,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: RimeConfigEntry) -> bool
     except RimeError as err:
         raise ConfigEntryNotReady(str(err)) from err
     entry.runtime_data = RimeData(client, voices)
-    await hass.config_entries.async_forward_entry_setups(entry, [Platform.TTS])
+    await hass.config_entries.async_forward_entry_setups(
+        entry, [Platform.TTS, Platform.SENSOR]
+    )
     entry.async_on_unload(entry.add_update_listener(async_reload_entry))
     return True
 
@@ -57,4 +59,6 @@ async def async_reload_entry(hass: HomeAssistant, entry: RimeConfigEntry) -> Non
 
 async def async_unload_entry(hass: HomeAssistant, entry: RimeConfigEntry) -> bool:
     """Unload the TTS entity."""
-    return await hass.config_entries.async_unload_platforms(entry, [Platform.TTS])
+    return await hass.config_entries.async_unload_platforms(
+        entry, [Platform.TTS, Platform.SENSOR]
+    )

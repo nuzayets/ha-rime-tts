@@ -4,6 +4,8 @@ DOMAIN = "rime_tts"
 MODELS = ("coda", "mistv3")
 DEFAULT_MODEL = "coda"
 CONF_VOICE = "voice"
+CONF_FALLBACK_ENGINE = "fallback_engine"
+USAGE_URL = "https://optimize.rime.ai/usage/detailed-history"
 LANGUAGES = {
     "eng": "en",
     "spa": "es",
